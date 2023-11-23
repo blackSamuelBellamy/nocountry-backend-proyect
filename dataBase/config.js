@@ -1,13 +1,13 @@
-const mongoose = require('mongoose')
-require('colors')
+import { connect } from 'mongoose'
+import 'colors'
 
 const conection = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB)
+        await connect(process.env.MONGODB)
         console.log('DATABASE CONNECTED'.green)
-    } catch(e) {
+    } catch (e) {
         throw new Error('ERROR!!'.red, e)
     }
 }
 
-module.exports = conection
+export default conection
