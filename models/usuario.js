@@ -1,11 +1,11 @@
-const { Schema, model } = require('mongoose')
+import { Schema, model } from 'mongoose'
 
-const UsuarioSchema = Schema({
+const UserSchema = Schema({
     nombre: {
         type: String,
         required: [true, 'Debe ingresar un nombre de usuario']
     },
-    correo: {
+    email: {
         type: String,
         required: [true, 'Debe ingresar un correo de usuario por favor'],
         unique: true
@@ -14,10 +14,10 @@ const UsuarioSchema = Schema({
         type: String,
         required: [true, 'Contraseña es obligatoria']
     },
-    estado: { type: Boolean, default: true },
+    estate: { type: Boolean, default: true },
 
     img: { type: String }
 
 })
 
-module.exports = model('Usuario', UsuarioSchema)
+export default model('User', UserSchema)

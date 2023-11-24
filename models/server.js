@@ -1,12 +1,12 @@
-const express = require('express')
-const cors = require('cors')
-const conection = require('../dataBase/config')
-const message = require('../helpers/message')
+import express, { json } from 'express'
+import cors from 'cors'
+import conection from '../dataBase/config.js'
+import message from '../helpers/message.js'
 
 
 class Server {
 
-    #PUERTO = process.env.PUERTO
+    #PORT = process.env.PORT
 
     constructor() {
         this.app = express()
@@ -16,16 +16,16 @@ class Server {
 
     middlewares() {
         this.app.use(cors())
-        this.app.use(express.json())
+        this.app.use(json())
     }
-    async dataBase () {
+    async dataBase() {
         await conection()
     }
 
     listen() {
-        this.app.listen(this.#PUERTO, message(this.#PUERTO))
+        this.app.listen(this.#PORT, message(this.#PORT))
     }
 }
 
 
-module.exports = Server
+export default Server
