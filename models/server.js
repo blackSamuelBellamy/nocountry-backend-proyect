@@ -1,17 +1,18 @@
 const express = require('express')
 const cors = require('cors')
-const conection = require('../dataBase/config')
+const connection = require('../dataBase/connection')
 const message = require('../helpers/message')
-
 
 class Server {
 
-    #PUERTO = process.env.PUERTO
+    #PORT = process.env.PORT
+    #usuario = '/api/usuario'
 
     constructor() {
         this.app = express()
         this.dataBase()
         this.middlewares()
+        this.routes()
     }
 
     middlewares() {
@@ -19,11 +20,16 @@ class Server {
         this.app.use(express.json())
     }
     async dataBase () {
-        await conection()
+        await connection()
+    }
+
+    routes() {
+        this.app.use(this.#usuario, 
+        require('../routes/routes.usuario'))
     }
 
     listen() {
-        this.app.listen(this.#PUERTO, message(this.#PUERTO))
+        this.app.listen(this.#PORT, message(this.#PORT))
     }
 }
 

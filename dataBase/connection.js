@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 require('colors')
 
-const conection = async () => {
+const connection = async () => {
     try {
         await mongoose.connect(process.env.MONGODB)
         console.log('DATABASE CONNECTED'.green)
@@ -10,4 +10,4 @@ const conection = async () => {
     }
 }
 
-module.exports = conection
+module.exports = connection
