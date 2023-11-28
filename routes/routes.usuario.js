@@ -9,6 +9,7 @@ const { POST_LOGIN, POST_SIGN_UP, TOKEN } = require('../helpers/checks')
 const getAvatars = require('../controller/controller.avatar')
 const router = Router()
 
+router.get('/', (_, res) => res.status(200).send('Welcome to Green-Trace'))
 router.get('/sign-up', getAvatars)
 router.post('/sign-up', POST_SIGN_UP, signUp)
 router.post('/login', POST_LOGIN, logIn)
