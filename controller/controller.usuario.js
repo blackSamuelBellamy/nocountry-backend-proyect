@@ -3,10 +3,11 @@ const jwt = require('jsonwebtoken')
 const bycript = require('bcryptjs')
 const Usuario = require('../models/usuario')
 const genToken = require('../helpers/jwt')
+const transport = require('../helpers/emissions/calculator/transport')
 
 const signUp = async (req = request, res = response) => {
     try {
-        const { nombre, correo, password, ...rest } = req.body
+        const { nombre, correo, password, transporte, ...rest } = req.body
         const salt = bycript.genSaltSync()
         let usuario
         const noNew = await Usuario.findOne({ correo, estado: false })
@@ -15,11 +16,20 @@ const signUp = async (req = request, res = response) => {
                 nombre,
                 password: bycript.hashSync(password, salt),
                 estado: true,
+                transporte: transport(transporte),
                 ...rest,
             }
             usuario = await Usuario.findByIdAndUpdate(noNew.id, update, { new: true })
         } else {
-            usuario = new Usuario({ nombre, correo, password, ...rest })
+            usuario = new Usuario(
+                {
+                    nombre,
+                    correo,
+                    password,
+                    transporte: transport(transporte),
+                    ...rest
+                }
+            )
             usuario.password = bycript.hashSync(password, salt)
             await usuario.save()
         }
@@ -74,6 +84,7 @@ const update = async (req = request, res = response) => {
         const Authorization = req.header('Authorization')
         const token = Authorization.split('Bearer ')[1]
         const { correo, nombre, estado, ...rest } = req.body
+        if('transporte' in rest) rest.transporte = transport(rest.transporte)
         const data = rest
         const { id } = jwt.verify(token, process.env.TOKEN_USER)
         const usuario = await Usuario.findByIdAndUpdate(id, data, { new: true })
@@ -108,9 +119,50 @@ const eliminar = async (req = request, res = response) => {
     }
 }
 
+const auth = async (req = request, res = response) => {
+    try {
+        const Authorization = req.header('Authorization')
+        const token = Authorization.split('Bearer ')[1]
+
+        const tokenDecoded = jwt.verify(token, process.env.TOKEN_USER)
+        const usuario = await Usuario.findOne({ _id: tokenDecoded.id, estado: true })
+
+        if (!usuario) return res.status(404).json({
+            message: 'No existe este usuario'
+        })
+
+        res.status(200).json({
+            message: 'El token está valido',
+            isTokenValid: true,
+            usuario: usuario.nombre,
+            img: usuario.img
+        })
+
+    } catch (e) {
+        const err = "Cannot read properties of undefined (reading 'split')"
+        const noValid = ['jwt expired', 'invalid token', 'invalid signature', 'jwt malformed']
+        console.log('ERROR!, HUBO UN PROBLEMA'.red, e.message)
+
+        if (e.message === err) return res.status(400).json({
+            message: "No existe Token",
+            isTokenValid: false
+        })
+        if (noValid.includes(e.message)) return res.status(401).json({
+            message: e.message,
+            isTokenValid: false
+        })
+
+        res.status(500).json({
+            message: e.message
+        })
+    }
+}
+
+
 module.exports = {
     signUp,
     logIn,
     update,
-    eliminar
+    eliminar,
+    auth
 }
