@@ -14,8 +14,7 @@ const UsuarioSchema = Schema({
         type: String,
         required: [true, 'Contraseña es obligatoria']
     },
-
-    edad: { type: Number },
+    img: { type: String },
 
     electricidad: { type: String },
 
@@ -23,10 +22,7 @@ const UsuarioSchema = Schema({
 
     transporte: { type: String },
 
-    estado: { type: Boolean, default: true },
-
-    img: { type: String }
-
+    estado: { type: Boolean, default: true }
 })
 
 UsuarioSchema.methods.toJSON = function () {

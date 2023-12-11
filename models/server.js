@@ -19,15 +19,15 @@ class Server {
         this.app.use(cors())
         this.app.use(express.json())
     }
-    async dataBase () {
+    async dataBase() {
         await connection()
     }
 
     routes() {
-        this.app.get('/',
-        (_, res) => res.status(200).send('Welcome to Green-Trace'))
-        this.app.use(this.#usuario, 
-        require('../routes/routes.usuario'))
+        this.app.use(this.#usuario, require('../routes/routes.usuario'))
+        this.app.get('/', (_, res) => {
+            res.status(200).send('Welcome to Green-Trace project!👌')
+        })
     }
 
     listen() {

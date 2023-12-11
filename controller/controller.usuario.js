@@ -4,6 +4,7 @@ const bycript = require('bcryptjs')
 const Usuario = require('../models/usuario')
 const genToken = require('../helpers/jwt')
 const transport = require('../helpers/emissions/calculator/transport')
+const carbonFP = require('../helpers/carbon_footprint/carbonFP')
 
 const signUp = async (req = request, res = response) => {
     try {
@@ -82,6 +83,7 @@ const update = async (req = request, res = response) => {
         const Authorization = req.header('Authorization')
         const token = Authorization.split('Bearer ')[1]
         const { estado, ...rest } = req.body
+        const { id } = jwt.verify(token, process.env.TOKEN_USER)
 
         if ('gas' in rest) rest.gas = carbonFP.getGas(rest.gas)
         if ('transporte' in rest) rest.transporte = transport(rest.transporte)
@@ -94,12 +96,26 @@ const update = async (req = request, res = response) => {
             rest.password = bycript.hashSync(rest.password, salt)
         }
 
-        /*  if ('correo' in rest) {
-             const correo = rest.correo
-            // const noNew = await Usuario.findOne({ correo, estado: false })
-             //if (noNew) rest = { estado: true, ...rest }
-         } */
-        const { id } = jwt.verify(token, process.env.TOKEN_USER)
+        if ('correo' in rest) {
+            const correo = rest.correo
+            const [activo, noActivo] = await Promise.all([
+                await Usuario.findOne({ correo, estado: true }),
+                await Usuario.findOne({ correo, estado: false })
+            ])
+            if (activo) return res.status(400).json({
+                message: 'Este correo ya le pertenece a otra persona, intenta con uno distinto'
+            })
+            if (noActivo) {
+                const [, usuario] = await Promise.all([
+                    await Usuario.findByIdAndUpdate(noActivo._id, { correo: `changed${correo}` }),
+                    await Usuario.findByIdAndUpdate(id, rest, { new: true })
+                ])
+                return res.status(200).json({
+                    message: `Hemos actualizado tus datos ${usuario.nombre} correctamente`,
+                    usuario,
+                })
+            }
+        }
         const usuario = await Usuario.findByIdAndUpdate(id, rest, { new: true })
         res.status(200).json({
             message: `Hemos actualizado tus datos ${usuario.nombre} correctamente`,
@@ -127,6 +143,30 @@ const eliminar = async (req = request, res = response) => {
         console.log('Error! no se pudo eliminar el perfil'.red, e)
         res.status(500).json({
             message: 'No fué posible eliminar el perfil',
+            error: e.message,
+        })
+    }
+}
+
+const userData = async (req = request, res = response) => {
+    try {
+        const Authorization = req.header('Authorization')
+        const token = Authorization.split('Bearer ')[1]
+
+        if (!token) return res.status(401).json({
+            message: "Error: trying a request with an empty token"
+        })
+
+        const { id } = jwt.verify(token, process.env.TOKEN_USER)
+        const usuario = await Usuario.findOne({ _id: id, estado: true })
+
+        res.status(200).json({
+            message: 'request successful',
+            usuario
+        })
+    } catch (e) {
+        res.status(500).json({
+            message: 'request failed',
             error: e.message,
         })
     }
@@ -177,5 +217,6 @@ module.exports = {
     logIn,
     update,
     eliminar,
-    auth
+    auth,
+    userData
 }
