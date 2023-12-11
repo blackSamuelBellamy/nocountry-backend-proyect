@@ -26,7 +26,7 @@ class Server {
     routes() {
         this.app.use(this.#usuario, require('../routes/routes.usuario'))
         this.app.get('/', (_, res) => {
-            res.status(200).send('Welcome to Green-Trace project!👌')
+            res.status(200).send('Welcome to Green-Trace project!')
         })
     }
 
