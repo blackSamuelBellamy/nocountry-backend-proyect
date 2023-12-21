@@ -16,13 +16,20 @@ const UsuarioSchema = Schema({
     },
     img: { type: String },
 
-    electricidad: { type: String },
+    electricidad: { type: Number },
 
-    gas: { type: String },
+    gas: { type: Number },
 
-    transporte: { type: String },
+    transporte: { type: Number },
 
-    estado: { type: Boolean, default: true }
+    transporteAereo: { type: Number },
+
+    transporteTerrestre: { type: Number },
+
+    estado: { type: Boolean, default: false },
+
+    validated: { type: Boolean, default: false }
+
 })
 
 UsuarioSchema.methods.toJSON = function () {

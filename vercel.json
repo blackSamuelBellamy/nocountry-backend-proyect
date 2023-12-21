@@ -6,6 +6,7 @@
         "use": "@vercel/node"
       }
     ],
+    "alias": "green-trace-back",  
     "routes": [
       {
         "src": "/(.*)",
