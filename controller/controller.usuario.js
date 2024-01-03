@@ -4,7 +4,7 @@ const path = require('path')
 const bycript = require('bcryptjs')
 const { Usuario } = require('../models')
 const carbonFP = require('../helpers/carbon_footprint')
-const sendingMail = require('../helpers/nodemailer/nodemailer')
+const sendingMail = require('../helpers/resend/resend')
 const {
     emailJWT,
     sessionJWT,

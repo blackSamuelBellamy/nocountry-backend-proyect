@@ -1,6 +1,6 @@
 const { request, response } = require('express')
 const { Newsletter } = require('../models')
-const sendingMail = require('../helpers/nodemailer/nodemailer')
+const sendingMail = require('../helpers/resend/resend')
 require('colors')
 
 const newsletterPost = async (req = request, res = response) => {
